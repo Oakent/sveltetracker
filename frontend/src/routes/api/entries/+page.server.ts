@@ -1,6 +1,18 @@
 import { prisma } from '$lib/server/prisma';
+import { json } from '@sveltejs/kit';
 
-export async function load() {
+export async function GET() {
 	const entries = await prisma.entry.findMany();
-	return { entries };
+	return json({ entries });
+}
+
+export async function POST(request: Request) {
+	const data = await request.json();
+	const entry = await prisma.entry.create({
+		data: {
+			title: data.title,
+			duration: data.duration
+		}
+	});
+	return json(entry, { status: 201 });
 }

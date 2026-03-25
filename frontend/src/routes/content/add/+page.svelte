@@ -1,9 +1,16 @@
-<h1>Page to add content to langtracker</h1>
+<script lang="ts">
+	import * as Field from '$lib/components/ui/field/index';
+	import { Input } from '$lib/components/ui/input/index';
+	import { Button } from '$lib/components/ui/button/index';
+</script>
 
-<form action="post">
-	<label for="title">Add a title</label>
-	<input type="text" id="title" name="title" />
-	<label for="duration">Duration (minutes)</label>
-	<input type="number" id="duration" name="duration" />
-	<button type="submit">Add</button>
-</form>
+<h1>Page to add content to langtracker</h1>
+<div class="w-full max-w-md">
+	<Field.Set>
+		<Field.Label for="title">Title</Field.Label>
+		<Input type="text" id="title" name="title" />
+		<Field.Label for="duration">Duration (minutes)</Field.Label>
+		<Input type="number" id="duration" name="duration" />
+		<Button type="submit">Add</Button>
+	</Field.Set>
+</div>
