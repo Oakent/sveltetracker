@@ -7,19 +7,19 @@
 	import * as Form from '$lib/components/ui/form/index.js';
 </script>
 
-<div class="flex items-center justify-center">
-	<Card.Root class="w-full max-w-md rounded-lg border text-lg">
-		<Card.Content class="p-6">
-			<p>add content:</p>
+<div class="m-4 flex flex-col items-center justify-center space-y-4">
+	<Card.Root class="w-full max-w-md rounded-lg border-2 text-center text-lg">
+		<Card.Content>
+			<p>Add content</p>
 			<form method="POST">
 				<Field.Set>
 					<Field.Group>
 						<Field.Field>
-							<Field.Label class="text-base" for="title">Add a title</Field.Label>
+							<Field.Label class="text-base" for="title">Add a title:</Field.Label>
 							<Input id="title" name="title" />
 						</Field.Field>
 						<Field.Field>
-							<Field.Label class="text-base" for="duration">Duration (minutes)</Field.Label>
+							<Field.Label class="text-base" for="duration">Duration (minutes):</Field.Label>
 							<Input id="duration" name="duration" type="number" />
 						</Field.Field>
 						<Field.Field>
