@@ -5,6 +5,7 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Form from '$lib/components/ui/form/index.js';
+	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
 </script>
 
 <div class="m-4 flex flex-col items-center justify-center space-y-4">
@@ -16,14 +17,14 @@
 					<Field.Group>
 						<Field.Field>
 							<Field.Label class="text-base" for="title">Add a title:</Field.Label>
-							<Input id="title" name="title" />
+							<Input class="rounded-sm" id="title" name="title" />
 						</Field.Field>
 						<Field.Field>
 							<Field.Label class="text-base" for="duration">Duration (minutes):</Field.Label>
-							<Input id="duration" name="duration" type="number" />
+							<Input class="rounded-sm" id="duration" name="duration" type="number" />
 						</Field.Field>
 						<Field.Field>
-							<Button type="submit">Add</Button>
+							<Button class="rounded-sm" type="submit">Add</Button>
 						</Field.Field>
 					</Field.Group>
 				</Field.Set>

@@ -13,7 +13,7 @@
 			Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation
 		</p>
 
-		<Button onclick={toggleMode} variant="outline" size="icon">
+		<Button onclick={toggleMode} variant="outline" size="icon" class="rounded-sm">
 			<SunIcon
 				class="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 !transition-all dark:scale-0 dark:-rotate-90"
 			/>
