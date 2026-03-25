@@ -1,3 +1,8 @@
+# Project deployment 
+This project is currently deployed with Vercel and can be viewed [here](https://sveltetracker.vercel.app/)
+
+
+
 # sv
 
 Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
