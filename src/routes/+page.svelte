@@ -1,10 +1,22 @@
 <script lang="ts">
 	import SunIcon from '@lucide/svelte/icons/sun';
 	import MoonIcon from '@lucide/svelte/icons/moon';
+	import * as NavigationMenu from '$lib/components/ui/navigation-menu/index.ts';
 
 	import { toggleMode } from 'mode-watcher';
 	import { Button } from '$lib/components/ui/button/index.js';
 </script>
+
+<NavigationMenu.Root>
+	<NavigationMenu.List>
+		<NavigationMenu.Item>
+			<NavigationMenu.Trigger>Item One</NavigationMenu.Trigger>
+			<NavigationMenu.Content>
+				<NavigationMenu.Link>Link</NavigationMenu.Link>
+			</NavigationMenu.Content>
+		</NavigationMenu.Item>
+	</NavigationMenu.List>
+</NavigationMenu.Root>
 
 <div class="align-center flex justify-center">
 	<div class="max-width:fit-content margin-left:auto margin-right:auto">
