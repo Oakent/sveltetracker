@@ -6,7 +6,10 @@
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Form from '$lib/components/ui/form/index.js';
 	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
+	import Navbar from '$lib/components/navbar.svelte';
 </script>
+
+<Navbar />
 
 <div class="m-4 flex flex-col items-center justify-center space-y-4">
 	<Card.Root class="w-full max-w-md rounded-lg border-2 text-center text-lg">

@@ -4,8 +4,8 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  url       = env("DATABASE_URL") // transaction pooler
+  directUrl = env("DIRECT_URL") // session pooler
 }
 
 model Entry {
@@ -13,4 +13,131 @@ model Entry {
   title     String
   duration  Int
   createdAt DateTime @default(now())
+}
+
+model User {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email     String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+
+  languageProfiles LanguageProfile[]
+
+  @@map("user")
+}
+
+// ---------------------------------------------------------------------------
+// Language profile
+// ---------------------------------------------------------------------------
+
+model LanguageProfile {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  languageCode String   @map("language_code")
+  displayName  String   @map("display_name")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contentEntries  ContentEntry[]
+  tvShowLibraries TvShowLibrary[]
+  podcastFeeds    PodcastFeed[]
+
+  @@map("language_profile")
+}
+
+// ---------------------------------------------------------------------------
+// Content entry — canonical log for all tracked media
+// ---------------------------------------------------------------------------
+
+enum ContentType {
+  tv_episode
+  podcast
+  youtube
+  manual
+
+  @@map("content_type")
+}
+
+model ContentEntry {
+  id              String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  profileId       String      @map("profile_id") @db.Uuid
+  type            ContentType
+  durationMinutes Int         @map("duration_minutes")
+  loggedAt        DateTime    @default(now()) @map("logged_at")
+  sourceUrl       String?     @map("source_url")
+  metadata        Json?
+
+  profile           LanguageProfile    @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  episodeLog        EpisodeLog?
+  podcastEpisodeLog PodcastEpisodeLog?
+
+  @@map("content_entry")
+}
+
+// ---------------------------------------------------------------------------
+// TV show library + episode log
+// ---------------------------------------------------------------------------
+
+model TvShowLibrary {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  profileId      String   @map("profile_id") @db.Uuid
+  externalShowId String   @map("external_show_id")
+  title          String
+  totalSeasons   Int      @map("total_seasons")
+  showMetadata   Json?    @map("show_metadata")
+  addedAt        DateTime @default(now()) @map("added_at")
+
+  profile     LanguageProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  episodeLogs EpisodeLog[]
+
+  @@map("tv_show_library")
+}
+
+model EpisodeLog {
+  id              String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  contentEntryId  String @unique @map("content_entry_id") @db.Uuid
+  libraryId       String @map("library_id") @db.Uuid
+  seasonNumber    Int    @map("season_number")
+  episodeNumber   Int    @map("episode_number")
+  durationMinutes Int    @map("duration_minutes")
+
+  contentEntry ContentEntry  @relation(fields: [contentEntryId], references: [id], onDelete: Cascade)
+  library      TvShowLibrary @relation(fields: [libraryId], references: [id], onDelete: Cascade)
+
+  // Prevents duplicate episode entries; drop this constraint when rewatch support is added
+  @@unique([libraryId, seasonNumber, episodeNumber])
+  @@map("episode_log")
+}
+
+// ---------------------------------------------------------------------------
+// Podcast feed + episode log
+// ---------------------------------------------------------------------------
+
+model PodcastFeed {
+  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  profileId    String @map("profile_id") @db.Uuid
+  feedUrl      String @map("feed_url")
+  title        String
+  feedMetadata Json?  @map("feed_metadata")
+
+  profile            LanguageProfile     @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  podcastEpisodeLogs PodcastEpisodeLog[]
+
+  @@map("podcast_feed")
+}
+
+model PodcastEpisodeLog {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  contentEntryId  String   @unique @map("content_entry_id") @db.Uuid
+  feedId          String   @map("feed_id") @db.Uuid
+  episodeGuid     String   @map("episode_guid")
+  title           String
+  durationMinutes Int      @map("duration_minutes")
+  listenedAt      DateTime @default(now()) @map("listened_at")
+
+  contentEntry ContentEntry @relation(fields: [contentEntryId], references: [id], onDelete: Cascade)
+  feed         PodcastFeed  @relation(fields: [feedId], references: [id], onDelete: Cascade)
+
+  // Prevents duplicate episode entries; drop this constraint when rewatch support is added
+  @@unique([feedId, episodeGuid])
+  @@map("podcast_episode_log")
 }
