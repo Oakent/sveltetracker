@@ -1,27 +1,13 @@
 # Project deployment 
 This project is currently deployed with Vercel and can be viewed [here](https://sveltetracker.vercel.app/)
 
+## To run this project locally
+1. Clone the repo to your machine
+2. Run npm install
+3. Create a project with supabase and copy the Transaction Pooler and Session Pooler connection strings
+4. Store the connection strings in .env 
+5. Run npx prisma generate
 
-
-# sv
-
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
-
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
-
-```sh
-# create a new project
-npx sv create my-app
-```
-
-To recreate this project with the same configuration:
-
-```sh
-# recreate this project
-npx sv@0.12.8 create --template minimal --types ts --add prettier vitest="usages:unit,component" playwright tailwindcss="plugins:none" sveltekit-adapter="adapter:auto" devtools-json paraglide="languageTags:en, es+demo:yes" mcp="ide:claude-code,gemini,opencode+setup:remote" storybook --install npm frontend
-```
 
 ## Developing
 
