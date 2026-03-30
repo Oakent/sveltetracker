@@ -29,7 +29,8 @@
 		"dotenv": "^16.6.1",
 		"lucide-svelte": "^1.0.1",
 		"mode-watcher": "^1.1.0",
-		"supabase": "^2.84.5"
+		"supabase": "^2.84.5",
+		"twemoji": "^14.0.2"
 	},
 	"devDependencies": {
 		"@chromatic-com/storybook": "^5.0.2",

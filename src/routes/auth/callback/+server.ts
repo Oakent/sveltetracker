@@ -1,9 +1,20 @@
 import { redirect } from '@sveltejs/kit';
+import { prisma } from '$lib/server/prisma';
+import type { RequestEvent } from '@sveltejs/kit';
 
-export const GET = async ({ url, locals }) => {
+export const GET = async ({ url, locals }: RequestEvent) => {
 	const code = url.searchParams.get('code');
 	if (code) {
-		await locals.supabase.auth.exchangeCodeForSession(code);
+		const {
+			data: { user }
+		} = await locals.supabase.auth.exchangeCodeForSession(code);
+		if (user) {
+			await prisma.user.upsert({
+				where: { id: user.id },
+				update: { email: user.email ?? '' },
+				create: { id: user.id, email: user.email ?? '' }
+			});
+		}
 	}
 	redirect(303, '/dashboard');
 };

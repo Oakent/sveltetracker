@@ -50,6 +50,9 @@ model LanguageProfile {
 
 enum ContentType {
   tv_episode
+  movie
+  audiobook
+  other
   podcast
   youtube
   manual
@@ -61,6 +64,7 @@ model ContentEntry {
   id              String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   profileId       String      @map("profile_id") @db.Uuid
   type            ContentType
+  title           String      @map("title")
   durationSeconds Int         @map("duration_seconds")
   loggedAt        DateTime    @default(now()) @map("logged_at")
   sourceUrl       String?     @map("source_url")

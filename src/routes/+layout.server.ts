@@ -1,4 +1,5 @@
-export const load = async ({ locals }) => {
-	const { session, user } = await locals.safeGetSession();
-	return { session, user };
+import type { RequestEvent } from '@sveltejs/kit';
+
+export const load = async ({ locals }: RequestEvent) => {
+	return { session: locals.session };
 };

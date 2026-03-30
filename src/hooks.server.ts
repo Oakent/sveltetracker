@@ -12,7 +12,6 @@ export const handle: Handle = async ({ event, resolve }) => {
 				)
 		}
 	});
-
 	event.locals.safeGetSession = async () => {
 		const {
 			data: { session }
@@ -25,9 +24,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 		if (error) return { session: null, user: null };
 		return { session, user };
 	};
-
-	return resolve(event, {
-		filterSerializedResponseHeaders: (name) =>
-			name === 'content-range' || name === 'x-supabase-api-version'
-	});
+	const { session, user } = await event.locals.safeGetSession();
+	event.locals.session = session;
+	return resolve(event);
 };

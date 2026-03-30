@@ -5,7 +5,13 @@ import { get } from 'svelte/store';
 import { supabaseStore, sessionStore } from '$lib/stores/supabase';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-export const load = async ({ data, fetch }) => {
+export const load = async ({
+	data,
+	fetch
+}: {
+	data: { session: any };
+	fetch: typeof globalThis.fetch;
+}) => {
 	if (browser) {
 		let client = get(supabaseStore);
 
@@ -33,20 +39,34 @@ export const load = async ({ data, fetch }) => {
 			data: { session }
 		} = await client.auth.getSession();
 
-		sessionStore.set(session);
+		if (session) {
+			const {
+				data: { user },
+				error
+			} = await client.auth.getUser();
+			if (!error && user) {
+				sessionStore.set(session);
+				return {
+					session,
+					user
+				};
+			}
+		}
+
+		sessionStore.set(null);
 
 		client.auth.onAuthStateChange((_event: string, newSession: any) => {
 			sessionStore.set(newSession);
 		});
 
 		return {
-			session,
-			user: data?.user ?? null
+			session: null,
+			user: null
 		};
 	}
 
 	return {
 		session: null,
-		user: data?.user ?? null
+		user: data?.session?.user ?? null
 	};
 };
