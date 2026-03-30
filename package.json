@@ -28,7 +28,8 @@
 		"dayjs": "^1.11.20",
 		"dotenv": "^16.6.1",
 		"lucide-svelte": "^1.0.1",
-		"mode-watcher": "^1.1.0"
+		"mode-watcher": "^1.1.0",
+		"supabase": "^2.84.5"
 	},
 	"devDependencies": {
 		"@chromatic-com/storybook": "^5.0.2",
