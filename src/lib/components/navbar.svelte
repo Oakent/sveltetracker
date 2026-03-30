@@ -8,6 +8,16 @@
 	import { toggleMode } from 'mode-watcher';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import '../../routes/layout.css';
+	import { get } from 'svelte/store';
+	import { supabaseStore, sessionStore } from '$lib/stores/supabase';
+	import { goto } from '$app/navigation';
+
+	async function logout() {
+		const supabase = get(supabaseStore);
+		await supabase?.auth.signOut();
+		sessionStore.set(null);
+		goto('/');
+	}
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
@@ -31,7 +41,11 @@
 		<NavigationMenu.Root>
 			<NavigationMenu.List>
 				<NavigationMenuItem>
-					<NavigationMenu.Link href="/login">Login</NavigationMenu.Link>
+					{#if $sessionStore}
+						<NavigationMenu.Link onclick={logout}>Logout</NavigationMenu.Link>
+					{:else}
+						<NavigationMenu.Link href="/login">Login</NavigationMenu.Link>
+					{/if}
 				</NavigationMenuItem>
 				<NavigationMenuItem>
 					<ModeWatcher />

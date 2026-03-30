@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { goto, invalidate } from '$app/navigation';
+	import { get } from 'svelte/store';
 	import Navbar from '$lib/components/navbar.svelte';
 	import LoginForm from '$lib/components/login-form.svelte';
+	import { supabaseStore } from '$lib/stores/supabase';
 
-	let { data } = $props();
 	let email = $state('');
 	let password = $state('');
 	let loading = $state(false);
@@ -13,7 +14,8 @@
 	async function signUp() {
 		loading = true;
 		error = '';
-		const { error: e } = await data.supabase.auth.signUp({
+		const supabase = get(supabaseStore);
+		const { error: e } = await supabase!.auth.signUp({
 			email,
 			password,
 			options: { emailRedirectTo: `${location.origin}/auth/callback` }
@@ -24,7 +26,8 @@
 	}
 
 	async function signInWithGoogle() {
-		await data.supabase.auth.signInWithOAuth({
+		const supabase = get(supabaseStore);
+		await supabase!.auth.signInWithOAuth({
 			provider: 'google',
 			options: { redirectTo: `${location.origin}/auth/callback` }
 		});

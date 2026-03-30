@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { goto, invalidate } from '$app/navigation';
+	import { get } from 'svelte/store';
 	import Navbar from '$lib/components/navbar.svelte';
 	import LoginForm from '$lib/components/login-form.svelte';
+	import { supabaseStore } from '$lib/stores/supabase';
 
-	let { data } = $props();
 	let email = $state('');
 	let password = $state('');
 	let loading = $state(false);
@@ -13,7 +14,8 @@
 	async function signInWithPassword() {
 		loading = true;
 		error = '';
-		const { error: e } = await data.supabase.auth.signInWithPassword({ email, password });
+		const supabase = get(supabaseStore);
+		const { error: e } = await supabase!.auth.signInWithPassword({ email, password });
 		if (e) error = e.message;
 		else {
 			await invalidate('supabase:auth');
@@ -25,7 +27,8 @@
 	async function signInWithMagicLink() {
 		loading = true;
 		error = '';
-		const { error: e } = await data.supabase.auth.signInWithOtp({
+		const supabase = get(supabaseStore);
+		const { error: e } = await supabase!.auth.signInWithOtp({
 			email,
 			options: { emailRedirectTo: `${location.origin}/auth/callback` }
 		});
@@ -35,12 +38,17 @@
 	}
 
 	async function signInWithGoogle() {
-		await data.supabase.auth.signInWithOAuth({
+		const supabase = get(supabaseStore);
+		await supabase!.auth.signInWithOAuth({
 			provider: 'google',
 			options: { redirectTo: `${location.origin}/auth/callback` }
 		});
 	}
 </script>
+
+<head>
+	<title>Login</title>
+</head>
 
 <Navbar />
 <div class="flex h-screen w-full items-center justify-center px-4">
