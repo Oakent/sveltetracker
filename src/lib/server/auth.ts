@@ -1,9 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
-
-const DEV_BYPASS_AUTH = process.env.DEV_BYPASS_AUTH === 'true';
-const DEV_USER_ID = process.env.DEV_USER_ID || '00000000-0000-0000-0000-000000000001';
-const DEV_USER_EMAIL = process.env.DEV_USER_EMAIL || 'dev@example.com';
+import { DEV_BYPASS_AUTH, DEV_USER_EMAIL, DEV_USER_ID } from '$lib/server/dev-auth';
 
 export async function requireAuth(event: RequestEvent) {
 	if (DEV_BYPASS_AUTH) {

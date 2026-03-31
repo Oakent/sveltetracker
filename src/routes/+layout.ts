@@ -12,6 +12,14 @@ export const load = async ({
 	data: { session: any };
 	fetch: typeof globalThis.fetch;
 }) => {
+	if (data?.session) {
+		sessionStore.set(data.session);
+		return {
+			session: data.session,
+			user: data.session.user ?? null
+		};
+	}
+
 	if (browser) {
 		let client = get(supabaseStore);
 
