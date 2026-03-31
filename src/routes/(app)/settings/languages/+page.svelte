@@ -65,6 +65,15 @@
 	<div>
 		<h1 class="text-3xl font-bold tracking-tight">Language Profiles</h1>
 		<p class="text-muted-foreground">Manage your language learning profiles</p>
+		{#if data.redirectReason === 'required' && data.redirectPage}
+			<p class="mt-2 text-sm text-orange-600">
+				You do not currently have any language profiles. Please create one to access {data.redirectPage}.
+			</p>
+		{:else if data.redirectReason === 'new'}
+			<p class="mt-2 text-sm text-orange-600">
+				Welcome! Please create a language profile to get started.
+			</p>
+		{/if}
 	</div>
 
 	<div class="rounded-lg border border-border bg-card p-6">

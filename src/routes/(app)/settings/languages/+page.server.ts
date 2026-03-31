@@ -20,9 +20,14 @@ export const load = async (event: RequestEvent) => {
 		totalSeconds: profile.contentEntries.reduce((sum, entry) => sum + entry.durationSeconds, 0)
 	}));
 
+	const reason = event.url.searchParams.get('reason');
+	const page = event.url.searchParams.get('page');
+
 	return {
 		profiles: profilesWithTime,
-		availableLanguages: COMMON_LANGUAGES
+		availableLanguages: COMMON_LANGUAGES,
+		redirectReason: reason,
+		redirectPage: page
 	};
 };
 
