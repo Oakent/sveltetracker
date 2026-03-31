@@ -40,6 +40,7 @@ model LanguageProfile {
   contentEntries  ContentEntry[]
   tvShowLibraries TvShowLibrary[]
   podcastFeeds    PodcastFeed[]
+  movieLibraries  MovieLibrary[]
 
   @@map("language_profile")
 }
@@ -73,6 +74,7 @@ model ContentEntry {
   profile           LanguageProfile    @relation(fields: [profileId], references: [id], onDelete: Cascade)
   episodeLog        EpisodeLog?
   podcastEpisodeLog PodcastEpisodeLog?
+  movieLog          MovieLog?
 
   @@map("content_entry")
 }
@@ -102,7 +104,7 @@ model EpisodeLog {
   libraryId       String @map("library_id") @db.Uuid
   seasonNumber    Int    @map("season_number")
   episodeNumber   Int    @map("episode_number")
-  durationMinutes Int    @map("duration_minutes")
+  durationSeconds Int    @map("duration_seconds")
 
   contentEntry ContentEntry  @relation(fields: [contentEntryId], references: [id], onDelete: Cascade)
   library      TvShowLibrary @relation(fields: [libraryId], references: [id], onDelete: Cascade)
@@ -110,6 +112,37 @@ model EpisodeLog {
   // Prevents duplicate episode entries; drop this constraint when rewatch support is added
   @@unique([libraryId, seasonNumber, episodeNumber])
   @@map("episode_log")
+}
+
+// ---------------------------------------------------------------------------
+// Movie library
+// ---------------------------------------------------------------------------
+
+model MovieLibrary {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  profileId      String   @map("profile_id") @db.Uuid
+  externalMovieId String  @map("external_movie_id")
+  title          String
+  movieMetadata  Json?    @map("movie_metadata")
+  addedAt        DateTime @default(now()) @map("added_at")
+
+  profile    LanguageProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  movieLogs  MovieLog[]
+
+  @@map("movie_library")
+}
+
+model MovieLog {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  contentEntryId  String   @unique @map("content_entry_id") @db.Uuid
+  libraryId       String   @map("library_id") @db.Uuid
+  loggedAt        DateTime @default(now()) @map("logged_at")
+
+  contentEntry ContentEntry @relation(fields: [contentEntryId], references: [id], onDelete: Cascade)
+  library     MovieLibrary  @relation(fields: [libraryId], references: [id], onDelete: Cascade)
+
+  @@unique([libraryId])
+  @@map("movie_log")
 }
 
 // ---------------------------------------------------------------------------
@@ -135,7 +168,7 @@ model PodcastEpisodeLog {
   feedId          String   @map("feed_id") @db.Uuid
   episodeGuid     String   @map("episode_guid")
   title           String
-  durationMinutes Int      @map("duration_minutes")
+  durationSeconds Int      @map("duration_seconds")
   listenedAt      DateTime @default(now()) @map("listened_at")
 
   contentEntry ContentEntry @relation(fields: [contentEntryId], references: [id], onDelete: Cascade)

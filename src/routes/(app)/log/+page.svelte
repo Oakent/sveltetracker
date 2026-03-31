@@ -24,7 +24,8 @@
 		{ value: 'manual', label: 'Manual' },
 		{ value: 'youtube', label: 'YouTube' },
 		{ value: 'podcast', label: 'Podcast' },
-		{ value: 'tv_episode', label: 'TV Episode' }
+		{ value: 'tv_episode', label: 'TV Episode' },
+		{ value: 'movie', label: 'Movie' }
 	];
 
 	const typeBadgeVariant: Record<string, string> = {

@@ -32,6 +32,7 @@
 		{ label: 'Dashboard', href: '/dashboard' },
 		{ label: 'Content log', href: '/log' },
 		{ label: 'TV shows', href: '/tv' },
+		{ label: 'Movies', href: '/movies' },
 		{ label: 'Podcasts', href: '/podcasts' }
 	];
 

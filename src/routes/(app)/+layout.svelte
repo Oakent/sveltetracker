@@ -13,6 +13,7 @@
 		const path = $page.url.pathname;
 		if (path.startsWith('/log')) return 'Content log';
 		if (path.startsWith('/tv')) return 'TV shows';
+		if (path.startsWith('/movies')) return 'Movies';
 		if (path.startsWith('/podcasts')) return 'Podcasts';
 		if (path.startsWith('/settings')) return 'Settings';
 		return 'Dashboard';

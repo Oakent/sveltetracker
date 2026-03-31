@@ -4,33 +4,70 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
-
 	let { form } = $props();
-
 	let title = $state('');
 	let type = $state('manual');
 	let hours = $state('');
 	let minutes = $state('');
 	let sourceUrl = $state('');
 	let submitting = $state(false);
-
+	let enriching = $state(false);
+	let enrichError = $state<string | null>(null);
 	const hoursNum = $derived(parseInt(hours) || 0);
 	const minutesNum = $derived(parseInt(minutes) || 0);
 	const totalSeconds = $derived(hoursNum * 3600 + minutesNum * 60);
 	const isValid = $derived(hoursNum > 0 || minutesNum > 0);
-
 	const typeOptions = [
 		{ value: 'manual', label: 'Manual entry' },
 		{ value: 'youtube', label: 'YouTube video' },
 		{ value: 'podcast', label: 'Podcast episode' },
 		{ value: 'tv_episode', label: 'TV episode' }
 	];
-
 	function formatDuration(h: number, m: number): string {
 		const parts = [];
 		if (h > 0) parts.push(`${h}h`);
 		if (m > 0) parts.push(`${m}m`);
 		return parts.join(' ') || '';
+	}
+
+	const YOUTUBE_RE = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?/]+)/;
+	let enrichTimer: ReturnType<typeof setTimeout>;
+
+	function onSourceUrlInput(e: Event) {
+		const value = (e.target as HTMLInputElement).value;
+		sourceUrl = value;
+		enrichError = null;
+		clearTimeout(enrichTimer);
+		if (!YOUTUBE_RE.test(value)) return;
+		enrichTimer = setTimeout(() => enrichFromYouTube(value), 600);
+	}
+
+	async function enrichFromYouTube(url: string) {
+		enriching = true;
+		enrichError = null;
+		try {
+			const res = await fetch('/api/enrich/youtube', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ url })
+			});
+			if (!res.ok) {
+				const err = await res.json();
+				enrichError = err.message ?? 'Could not fetch video details';
+				return;
+			}
+			const data = await res.json();
+			if (!title) title = data.title;
+			if (!hoursNum && !minutesNum) {
+				hours = String(Math.floor(data.durationSeconds / 3600) || '');
+				minutes = String(Math.floor((data.durationSeconds % 3600) / 60) || '');
+			}
+			type = 'youtube';
+		} catch {
+			enrichError = 'Could not reach enrichment service';
+		} finally {
+			enriching = false;
+		}
 	}
 </script>
 
@@ -41,7 +78,6 @@
 			Log content you've consumed in your target language.
 		</p>
 	</div>
-
 	<form
 		method="POST"
 		use:enhance={() => {
@@ -54,7 +90,6 @@
 		class="space-y-5 rounded-lg border border-border bg-card p-6"
 	>
 		<input type="hidden" name="durationSeconds" value={totalSeconds} />
-
 		<div class="space-y-1.5">
 			<Label for="title">Title</Label>
 			<Input
@@ -69,7 +104,6 @@
 				<p class="text-xs text-destructive">{form.errors.title}</p>
 			{/if}
 		</div>
-
 		<div class="space-y-1.5">
 			<Label for="type">Type</Label>
 			<Select.Root type="single" bind:value={type} name="type">
@@ -83,7 +117,6 @@
 				</Select.Content>
 			</Select.Root>
 		</div>
-
 		<div class="space-y-1.5">
 			<Label for="duration">Duration</Label>
 			<div class="flex items-center gap-2">
@@ -117,20 +150,31 @@
 				<p class="text-xs text-destructive">{form.errors.duration}</p>
 			{/if}
 		</div>
-
 		<div class="space-y-1.5">
 			<Label for="sourceUrl"
-				>Source URL <span class="font-normal text-muted-foreground">(optional)</span></Label
+				>Source URL <span class="font-normal text-muted-foreground"
+					>(optional — paste a YouTube link to auto-fill)</span
+				></Label
 			>
-			<Input
-				id="sourceUrl"
-				name="sourceUrl"
-				type="url"
-				bind:value={sourceUrl}
-				placeholder="https://..."
-			/>
+			<div class="relative">
+				<Input
+					id="sourceUrl"
+					name="sourceUrl"
+					type="url"
+					value={sourceUrl}
+					oninput={onSourceUrlInput}
+					placeholder="https://..."
+				/>
+				{#if enriching}
+					<div class="absolute top-1/2 right-2.5 -translate-y-1/2 text-xs text-muted-foreground">
+						Loading…
+					</div>
+				{/if}
+			</div>
+			{#if enrichError}
+				<p class="text-xs text-destructive">{enrichError}</p>
+			{/if}
 		</div>
-
 		<div class="flex items-center justify-between pt-2">
 			<Button variant="ghost" href="/log">Cancel</Button>
 			<Button type="submit" disabled={submitting || !isValid || !title}>
