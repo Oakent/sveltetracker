@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: sveltetracker_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sveltetracker
+      POSTGRES_USER: sveltetracker
+      POSTGRES_PASSWORD: sveltetracker
+    ports:
+      - "54329:5432"
+    volumes:
+      - sveltetracker_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sveltetracker -d sveltetracker"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  sveltetracker_pgdata:
