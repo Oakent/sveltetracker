@@ -4,6 +4,14 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { ContentType } from '@prisma/client';
 import type { RequestEvent } from '@sveltejs/kit';
 
+export const load = async (event: RequestEvent) => {
+	await requireAuth(event);
+	const activeProfileId = event.cookies.get('activeProfileId');
+	if (!activeProfileId) {
+		throw redirect(303, '/settings/languages?reason=required&page=Log%20content');
+	}
+};
+
 export const actions = {
 	default: async (event: RequestEvent) => {
 		const user = await requireAuth(event);
