@@ -230,28 +230,30 @@
 								>
 									Edit
 								</Button>
-								<form
-									method="POST"
-									action="?/delete"
-									use:enhance={() => {
-										return async ({ result, update }) => {
-											if (result.type === 'success') {
-												await invalidateAll();
-											}
-											update();
-										};
-									}}
-								>
-									<input type="hidden" name="id" value={profile.id} />
-									<Button
-										type="submit"
-										variant="ghost"
-										size="sm"
-										class="h-8 text-destructive hover:text-destructive"
+								{#if data.profiles.length > 1}
+									<form
+										method="POST"
+										action="?/delete"
+										use:enhance={() => {
+											return async ({ result, update }) => {
+												if (result.type === 'success') {
+													await invalidateAll();
+												}
+												update();
+											};
+										}}
 									>
-										Delete
-									</Button>
-								</form>
+										<input type="hidden" name="id" value={profile.id} />
+										<Button
+											type="submit"
+											variant="ghost"
+											size="sm"
+											class="h-8 text-destructive hover:text-destructive"
+										>
+											Delete
+										</Button>
+									</form>
+								{/if}
 							</div>
 						{/if}
 					</div>

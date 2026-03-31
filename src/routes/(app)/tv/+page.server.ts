@@ -1,11 +1,14 @@
 import { requireAuth } from '$lib/server/auth';
 import { getLibrary, addShow, removeShow } from '$lib/server/db/tv';
 import { getShowDetails } from '$lib/server/enrichment/tmdb';
-import { fail } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 
 export const load = async (event) => {
 	const user = requireAuth(event);
 	const activeProfileId = event.cookies.get('activeProfileId') ?? '';
+	if (!activeProfileId) {
+		throw redirect(303, '/settings/languages?reason=required&page=TV%20Shows');
+	}
 	return { shows: await getLibrary(activeProfileId, user.id) };
 };
 

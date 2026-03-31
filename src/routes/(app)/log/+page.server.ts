@@ -1,11 +1,14 @@
 import { requireAuth } from '$lib/server/auth';
 import { listEntries, deleteEntry } from '$lib/server/db/content';
-import { fail } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 
 export const load = async (event: RequestEvent) => {
 	const user = await requireAuth(event);
 	const activeProfileId = event.cookies.get('activeProfileId') ?? '';
+	if (!activeProfileId) {
+		throw redirect(303, '/settings/languages?reason=required&page=Content%20Log');
+	}
 	return { entries: await listEntries(activeProfileId, user.id) };
 };
 

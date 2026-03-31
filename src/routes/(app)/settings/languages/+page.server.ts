@@ -6,6 +6,7 @@ import {
 	updateProfile
 } from '$lib/server/db/profiles';
 import { COMMON_LANGUAGES } from '$lib/data/languages';
+import { prisma } from '$lib/server/prisma';
 import type { RequestEvent } from '@sveltejs/kit';
 
 export const load = async (event: RequestEvent) => {
@@ -43,8 +44,13 @@ export const actions = {
 
 		await createProfile(user.id, languageCode, displayName);
 
-		if (isFirst) {
-			event.cookies.set('activeProfileId', existingProfiles[0]?.id ?? '', { path: '/' });
+		const newProfile = await prisma.languageProfile.findFirst({
+			where: { userId: user.id },
+			orderBy: { createdAt: 'desc' }
+		});
+
+		if (newProfile) {
+			event.cookies.set('activeProfileId', newProfile.id, { path: '/' });
 		}
 
 		return { success: true };
