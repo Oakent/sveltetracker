@@ -3,7 +3,6 @@
 	import { invalidateAll } from '$app/navigation';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
-	import { Label } from '$lib/components/ui/label/index.js';
 	import { COMMON_LANGUAGES, type Language } from '$lib/data/languages';
 	import Twemoji from '$lib/components/twemoji.svelte';
 
@@ -12,21 +11,22 @@
 	let searchQuery = $state('');
 	let showDropdown = $state(false);
 	let selectedLanguage = $state<Language | null>(null);
-	let newProfileName = $state('');
 	let editingId = $state<string | null>(null);
 	let editingName = $state('');
+
+	const existingLanguageCodes = $derived(new Set(data.profiles.map((p) => p.languageCode)));
 
 	const filteredLanguages = $derived(
 		COMMON_LANGUAGES.filter(
 			(lang) =>
-				lang.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-				lang.code.toLowerCase().includes(searchQuery.toLowerCase())
+				!existingLanguageCodes.has(lang.code) &&
+				(lang.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+					lang.code.toLowerCase().includes(searchQuery.toLowerCase()))
 		).slice(0, 10)
 	);
 
 	function selectLanguage(lang: Language) {
 		selectedLanguage = lang;
-		newProfileName = lang.name;
 		searchQuery = '';
 		showDropdown = false;
 	}
@@ -85,7 +85,6 @@
 				return async ({ result, update }) => {
 					if (result.type === 'success') {
 						selectedLanguage = null;
-						newProfileName = '';
 						await invalidateAll();
 					}
 					update();
@@ -94,7 +93,7 @@
 			class="space-y-4"
 		>
 			<div class="relative">
-				<Label for="language-search">Search language</Label>
+				<label class="text-sm font-medium" for="language-search">Search language</label>
 				<Input
 					id="language-search"
 					type="text"
@@ -124,24 +123,14 @@
 
 			{#if selectedLanguage}
 				<input type="hidden" name="languageCode" value={selectedLanguage.code} />
+				<input type="hidden" name="displayName" value={selectedLanguage.name} />
 				<div class="flex items-center gap-2 rounded-md bg-accent/50 p-3">
 					<Twemoji emoji={selectedLanguage.flag} size={32} />
 					<span class="font-medium">{selectedLanguage.name}</span>
 				</div>
 			{/if}
 
-			<div>
-				<Label for="displayName">Profile name</Label>
-				<Input
-					id="displayName"
-					name="displayName"
-					bind:value={newProfileName}
-					placeholder="e.g., Spanish for Beginners"
-					required
-				/>
-			</div>
-
-			<Button type="submit" disabled={!selectedLanguage || !newProfileName}>Add Language</Button>
+			<Button type="submit" disabled={!selectedLanguage}>Add Language</Button>
 		</form>
 	</div>
 

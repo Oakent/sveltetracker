@@ -45,6 +45,12 @@ export const actions = {
 		}
 
 		const existingProfiles = await listProfilesWithTime(user.id);
+
+		const duplicate = existingProfiles.find((p) => p.languageCode === languageCode);
+		if (duplicate) {
+			return fail(400, { error: 'You already have a profile for this language' });
+		}
+
 		const isFirst = existingProfiles.length === 0;
 
 		await createProfile(user.id, languageCode, displayName);
