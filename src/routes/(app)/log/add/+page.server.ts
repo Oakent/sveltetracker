@@ -23,22 +23,29 @@ export const actions = {
 		const type = data.get('type') as ContentType;
 		const durationSeconds = Number(data.get('durationSeconds'));
 		const sourceUrl = (data.get('sourceUrl') as string) || undefined;
+		const speedMultiplier = parseFloat(data.get('speedMultiplier') as string) || 1.0;
+		const loggedAtStr = data.get('loggedAt') as string;
 
 		const errors: Record<string, string> = {};
 		if (!title) errors.title = 'Title is required';
 		if (!durationSeconds || isNaN(durationSeconds)) errors.duration = 'Valid duration is required';
+		if (speedMultiplier <= 0) errors.speedMultiplier = 'Speed multiplier must be greater than 0';
 
 		if (Object.keys(errors).length > 0) {
 			return fail(422, { errors, values: { title, type, sourceUrl } });
 		}
+
+		const adjustedDuration = Math.round(durationSeconds / speedMultiplier);
+		const loggedAt = loggedAtStr ? new Date(loggedAtStr + 'T00:00:00') : new Date();
 
 		await createEntry({
 			profileId: activeProfileId,
 			userId: user.id,
 			type,
 			title,
-			durationSeconds,
-			sourceUrl
+			durationSeconds: adjustedDuration,
+			sourceUrl,
+			loggedAt
 		});
 		throw redirect(303, '/log');
 	}

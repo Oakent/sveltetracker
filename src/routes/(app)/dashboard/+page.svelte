@@ -8,7 +8,7 @@
 <div class="space-y-6">
 	<div>
 		<h1 class="text-3xl font-bold tracking-tight">Welcome back!</h1>
-		<p class="text-muted-foreground">Track your language learning content consumption</p>
+		<p class="text-muted-foreground">Track comprehensible input language learning</p>
 	</div>
 
 	<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -27,7 +27,7 @@
 			</CardHeader>
 			<CardContent>
 				<div class="text-2xl font-bold">0</div>
-				<p class="text-xs text-muted-foreground">Hours of content consumed</p>
+				<p class="text-xs text-muted-foreground">Total hours tracked</p>
 			</CardContent>
 		</Card>
 		<Card>

@@ -23,6 +23,7 @@ export const createEntry = async (data: {
 	durationSeconds: number;
 	sourceUrl?: string;
 	metadata?: object;
+	loggedAt?: Date;
 }) => {
 	const profile = await prisma.languageProfile.findFirst({
 		where: { id: data.profileId, userId: data.userId }
@@ -36,7 +37,8 @@ export const createEntry = async (data: {
 			title: data.title,
 			durationSeconds: data.durationSeconds,
 			sourceUrl: data.sourceUrl,
-			metadata: data.metadata
+			metadata: data.metadata,
+			loggedAt: data.loggedAt ?? new Date()
 		}
 	});
 	return entry;

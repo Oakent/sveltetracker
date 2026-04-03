@@ -8,17 +8,27 @@
 
 	let { data, form } = $props();
 
-	// Pre-fill from the loaded entry, converting seconds back to a readable string
+	const entryDate = new Date(data.entry.loggedAt).toISOString().split('T')[0];
+
 	let title = $state(data.entry.title);
 	let type = $state(data.entry.type);
 	let durationInput = $state(secondsToDurationString(data.entry.durationSeconds));
 	let sourceUrl = $state(data.entry.sourceUrl ?? '');
+	let speedMultiplier = $state('');
 	let submitting = $state(false);
 
 	const parsedSeconds = $derived(parseDurationInput(durationInput));
+	const speedMultiplierNum = $derived(parseFloat(speedMultiplier) || 1.0);
+	const adjustedSeconds = $derived(
+		parsedSeconds !== null && parsedSeconds > 0 && speedMultiplierNum > 0
+			? Math.round(parsedSeconds / speedMultiplierNum)
+			: parsedSeconds ?? 0
+	);
 	const durationPreview = $derived(
 		parsedSeconds !== null
-			? formatSeconds(parsedSeconds)
+			? speedMultiplierNum !== 1.0 && speedMultiplier
+				? `${formatSeconds(parsedSeconds)} → ${formatSeconds(adjustedSeconds)} at ${speedMultiplierNum}x`
+				: formatSeconds(parsedSeconds)
 			: durationInput.length > 0
 				? 'Invalid format'
 				: ''
@@ -52,6 +62,7 @@
 		class="space-y-5 rounded-lg border border-border bg-card p-6"
 	>
 		<input type="hidden" name="durationSeconds" value={parsedSeconds ?? ''} />
+		<input type="hidden" name="speedMultiplier" value={speedMultiplierNum} />
 
 		<div class="space-y-1.5">
 			<Label for="title">Title</Label>
@@ -77,7 +88,23 @@
 
 		<div class="space-y-1.5">
 			<Label for="duration">Duration</Label>
-			<Input id="duration" bind:value={durationInput} placeholder="1h 23m or 83" />
+			<div class="flex items-center gap-2">
+				<div class="flex-1">
+					<Input id="duration" bind:value={durationInput} placeholder="1h 23m or 83" />
+				</div>
+				<div class="w-28">
+					<Input
+						id="speed"
+						type="number"
+						step="0.05"
+						min="0.1"
+						bind:value={speedMultiplier}
+						placeholder="1.0"
+						class="text-center"
+					/>
+					<p class="mt-1 text-center text-xs text-muted-foreground">Speed</p>
+				</div>
+			</div>
 			{#if durationPreview}
 				<p class="text-xs text-muted-foreground">
 					{durationPreview === 'Invalid format'
@@ -85,6 +112,11 @@
 						: `→ ${durationPreview}`}
 				</p>
 			{/if}
+		</div>
+
+		<div class="space-y-1.5">
+			<Label for="loggedAt">Date logged</Label>
+			<Input id="loggedAt" name="loggedAt" type="date" value={entryDate} />
 		</div>
 
 		<div class="space-y-1.5">

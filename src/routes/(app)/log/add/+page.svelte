@@ -4,18 +4,29 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
+	import { formatSeconds } from '$lib/utils/duration';
 	let { form } = $props();
 	let title = $state('');
 	let type = $state('manual');
 	let hours = $state('');
 	let minutes = $state('');
 	let sourceUrl = $state('');
+	let speedMultiplier = $state('1.0');
 	let submitting = $state(false);
 	let enriching = $state(false);
 	let enrichError = $state<string | null>(null);
+
+	const today = new Date().toISOString().split('T')[0];
+
 	const hoursNum = $derived(parseInt(hours) || 0);
 	const minutesNum = $derived(parseInt(minutes) || 0);
 	const totalSeconds = $derived(hoursNum * 3600 + minutesNum * 60);
+	const speedMultiplierNum = $derived(parseFloat(speedMultiplier) || 1.0);
+	const adjustedSeconds = $derived(
+		totalSeconds > 0 && speedMultiplierNum > 0
+			? Math.round(totalSeconds / speedMultiplierNum)
+			: 0
+	);
 	const isValid = $derived(hoursNum > 0 || minutesNum > 0);
 	const typeOptions = [
 		{ value: 'manual', label: 'Manual entry' },
@@ -89,7 +100,8 @@
 		}}
 		class="space-y-5 rounded-lg border border-border bg-card p-6"
 	>
-		<input type="hidden" name="durationSeconds" value={totalSeconds} />
+		<input type="hidden" name="durationSeconds" value={adjustedSeconds} />
+		<input type="hidden" name="speedMultiplier" value={speedMultiplierNum} />
 		<div class="space-y-1.5">
 			<Label for="title">Title</Label>
 			<Input
@@ -142,13 +154,34 @@
 					/>
 					<p class="mt-1 text-center text-xs text-muted-foreground">Minutes</p>
 				</div>
+				<div class="w-28">
+					<Input
+						id="speed"
+						type="number"
+						step="0.05"
+						min="0.1"
+						bind:value={speedMultiplier}
+						placeholder="1.0"
+						class="text-center"
+					/>
+					<p class="mt-1 text-center text-xs text-muted-foreground">Speed</p>
+				</div>
 			</div>
 			{#if isValid}
-				<p class="text-xs text-muted-foreground">→ {formatDuration(hoursNum, minutesNum)}</p>
+				{@const original = formatDuration(hoursNum, minutesNum)}
+				{@const adjusted = adjustedSeconds > 0 ? formatSeconds(adjustedSeconds) : ''}
+				<p class="text-xs text-muted-foreground">
+					→ {original}{speedMultiplierNum !== 1.0 ? ` → ${adjusted} at ${speedMultiplierNum}x` : ''}
+				</p>
 			{/if}
 			{#if form?.errors?.duration}
 				<p class="text-xs text-destructive">{form.errors.duration}</p>
 			{/if}
+		</div>
+
+		<div class="space-y-1.5">
+			<Label for="loggedAt">Date logged</Label>
+			<Input id="loggedAt" name="loggedAt" type="date" value={today} />
 		</div>
 		<div class="space-y-1.5">
 			<Label for="sourceUrl"
